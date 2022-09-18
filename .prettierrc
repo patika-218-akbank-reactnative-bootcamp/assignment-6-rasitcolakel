@@ -4,10 +4,17 @@
     "trailingComma": "all",
     "singleQuote": true,
     "semi": true,
-    "importOrder": [
-        "^@src/(.*)$",
-        "^[./]"
-    ],
     "importOrderSeparation": true,
-    "importOrderSortSpecifiers": true
+    "importOrderSortSpecifiers": true,
+    "extends": [
+        "prettier"
+    ],
+    "plugins": [
+        "prettier"
+    ],
+    "rules": {
+        "prettier/prettier": "error",
+        "arrow-body-style": "off",
+        "prefer-arrow-callback": "off"
+    }
 }
