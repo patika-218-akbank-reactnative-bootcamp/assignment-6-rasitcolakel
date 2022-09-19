@@ -1,4 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import CustomFormControl from '@src/components/CustomFormControl';
+import { useAppDispatch } from '@src/store';
+import { login } from '@src/store/slices/userSlice';
 import { AuthStackParamList } from '@src/types/navigation';
 import {
   Box,
@@ -11,11 +14,28 @@ import {
   ScrollView,
 } from 'native-base';
 import React from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Platform } from 'react-native';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
+export type LoginForm = {
+  email: string;
+  password: string;
+};
+
 const Login = ({ navigation }: Props) => {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<LoginForm>();
+
+  const dispatch = useAppDispatch();
+  const onSubmit = async (data: LoginForm) => {
+    await dispatch(login(data));
+  };
+
   return (
     <ScrollView
       contentContainerStyle={{ flex: 1 }}
@@ -41,9 +61,61 @@ const Login = ({ navigation }: Props) => {
             <Heading size="lg" py={4} textAlign="center" color="primary.500">
               Login
             </Heading>
-            <Input my={1} placeholder="Email" />
-            <Input my={1} placeholder="Password" />
-            <Button my={2}>Proceed</Button>
+            <Controller
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <CustomFormControl error={errors.email}>
+                  <Input
+                    onBlur={onBlur}
+                    onChangeText={(value) => onChange(value)}
+                    value={value}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </CustomFormControl>
+              )}
+              name="email"
+              rules={{
+                required: {
+                  value: true,
+                  message: 'Email is required',
+                },
+              }}
+              defaultValue=""
+            />
+            <Controller
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <CustomFormControl error={errors.password}>
+                  <Input
+                    onBlur={onBlur}
+                    onChangeText={(value) => onChange(value)}
+                    value={value}
+                    placeholder="Password"
+                    keyboardType="default"
+                    autoCapitalize="none"
+                    type="password"
+                  />
+                </CustomFormControl>
+              )}
+              name="password"
+              rules={{
+                required: {
+                  value: true,
+                  message: 'Password is required',
+                },
+                minLength: {
+                  value: 6,
+                  message: 'Password must be at least 6 characters',
+                },
+              }}
+              defaultValue=""
+            />
+
+            <Button my={2} onPress={handleSubmit(onSubmit)}>
+              Sign In
+            </Button>
             <Link
               my={1}
               _text={{
