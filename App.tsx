@@ -7,7 +7,11 @@ import { LogBox } from 'react-native';
 import 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 
-LogBox.ignoreLogs(['firebase', 'AsyncStorage has been extracted']);
+LogBox.ignoreLogs([
+  'firebase',
+  'AsyncStorage has been extracted',
+  'with no listeners',
+]);
 
 export default function App() {
   return (

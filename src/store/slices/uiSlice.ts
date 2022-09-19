@@ -1,5 +1,10 @@
 import { PayloadAction, createSlice, isAnyOf } from '@reduxjs/toolkit';
-import { login, register } from '@src/store/slices/userSlice';
+import {
+  login,
+  register,
+  updateUser,
+  uploadImage,
+} from '@src/store/slices/userSlice';
 
 export type ToastState = {
   toast: ToastType | null;
@@ -25,9 +30,20 @@ export const uiSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(updateUser.fulfilled, (state) => {
+      state.toast = {
+        title: `Now you can access other users' locations`,
+        variant: 'success',
+      };
+    });
     builder
       .addMatcher(
-        isAnyOf(login.rejected, register.rejected),
+        isAnyOf(
+          login.rejected,
+          register.rejected,
+          uploadImage.rejected,
+          updateUser.rejected,
+        ),
         (state, action) => {
           state.toast = {
             title: 'Error',

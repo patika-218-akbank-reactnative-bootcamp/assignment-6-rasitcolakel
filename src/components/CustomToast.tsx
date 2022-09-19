@@ -1,5 +1,6 @@
+import { AntDesign } from '@expo/vector-icons';
 import { useAppSelector } from '@src/store';
-import { Box, Text, useToast } from 'native-base';
+import { Box, Text, View, useToast } from 'native-base';
 import React, { useEffect } from 'react';
 
 const CustomToast = () => {
@@ -14,6 +15,7 @@ const CustomToast = () => {
   };
   useEffect(() => {
     if (!toastState) return;
+    toast.closeAll();
     toast.show({
       render: () => {
         return (
@@ -26,11 +28,29 @@ const CustomToast = () => {
             px="2"
             py="1"
             rounded="sm"
+            alignItems="center"
+            flexDirection="row"
+            minW="60%"
           >
-            <Text color="white">{toastState?.title || 'Success'}</Text>
-            {toastState?.message && (
-              <Text color="white">{toastState.message}</Text>
-            )}
+            <AntDesign
+              name={
+                toastState.variant === 'success'
+                  ? 'checkcircle'
+                  : ['warning', 'error'].includes(toastState?.variant || '')
+                  ? 'warning'
+                  : 'infocirlce'
+              }
+              size={30}
+              color="white"
+            />
+            <View mx={4} py={2}>
+              <Text color="white" fontSize="md">
+                {toastState?.title || 'Success'}
+              </Text>
+              {toastState?.message && (
+                <Text color="white">{toastState.message}</Text>
+              )}
+            </View>
           </Box>
         );
       },
