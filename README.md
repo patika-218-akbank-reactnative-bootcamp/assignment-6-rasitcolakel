@@ -35,6 +35,28 @@ expo init my-app --template @native-base/expo-template-typescript
 7. [Secure Store](#secure-store)]
    1. [Installation](#secure-store-installation)
    2. [Usage](#secure-store-usage)
+8. [Expo Location](#expo-location)
+   1. [Installation](#expo-location-installation)
+   2. [Usage](#expo-location-usage)
+9. [Expo Camera](#expo-camera)
+   1. [Installation](#expo-camera-installation)
+   2. [Usage](#expo-camera-usage)
+   3. [How to take a picture](#expo-camera-how-to-take-a-picture)
+   4. [How to switch the camera](#expo-camera-how-to-switch-camera)
+10. [Expo Image Picker](#expo-image-picker)
+    1. [Installation](#expo-image-picker-installation)
+    2. [Usage](#expo-image-picker-usage)
+    3. [How to pick an image](#expo-image-picker-how-to-pick-an-image)
+11. [Expo Image Manipulator](#expo-image-manipulator)
+    1. [Installation](#expo-image-manipulator-installation)
+    2. [Usage](#expo-image-manipulator-usage)
+12. [React Native Maps](#react-native-maps)
+    1. [Installation](#react-native-maps-installation)
+    2. [Usage](#react-native-maps-usage)
+    3. [Adding Marker](#react-native-maps-adding-marker)
+13. [React Native Maps Clustering](#react-native-maps-clustering)
+    1. [Installation](#react-native-maps-clustering-installation)
+    2. [Usage](#react-native-maps-clustering-usage)
 
 <h3 id="nativebase">1. NativeBase</h3>
 NativeBase is a free and open source UI component library for React Native to build native mobile apps for iOS and Android platforms. It is a framework of high-quality UI components for React Native to build native mobile apps for iOS and Android platforms. It is built on top of the React Native framework and it allows you to use the platform’s APIs natively.
@@ -288,4 +310,247 @@ const value = await SecureStore.getItemAsync('key');
 
 // deleteItem
 await SecureStore.deleteItemAsync('key');
+```
+
+<h3 id="expo-location"> 8. Expo Location</h3>
+Expo Location provides an API to interact with the user's location. It uses the native location API under the hood.
+
+<h4 id="expo-location-installation">Installation</h4>
+
+```sh
+expo install expo-location
+```
+
+<h4 id="expo-location-usage">Usage</h4>
+
+```tsx
+import * as Location from 'expo-location';
+
+// requestPermissionsAsync
+const { status } = await Location.requestPermissionsAsync();
+
+// getCurrentPositionAsync
+const location = await Location.getCurrentPositionAsync({});
+```
+
+<h3 id="expo-camera"> 9. Expo Camera</h3>
+Expo Camera is a component that allows you to render a camera view. It is a wrapper around the Camera component from react-native-camera.
+
+<h4 id="expo-camera-installation">Installation</h4>
+
+```sh
+expo install expo-camera
+```
+
+<h4 id="expo-camera-usage">Usage</h4>
+
+```tsx
+import { Camera, CameraType } from 'expo-camera';
+
+function App() {
+  const [hasPermission, setHasPermission] = useState(null);
+  const [type, setType] = useState(CameraType.back);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
+
+  if (hasPermission === null) {
+    return <View />;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
+  return (
+    <View style={{ flex: 1 }}>
+      <Camera style={{ flex: 1 }} type={type} />
+    </View>
+  );
+}
+```
+
+<h4 id="expo-camera-how-to-take-a-picture">How to take a picture</h4>
+
+To take a picture, we need to use the takePictureAsync method from the ref of the Camera component.
+
+```tsx
+// add these lines into the App component
+const cameraRef = useRef<Camera>(null);
+const takePicture = async () => {
+  const photo = await cameraRef.current?.takePictureAsync();
+  console.log('photo', photo);
+};
+
+// add a ref to the Camera component
+<Camera
+  style={{ flex: 1 }}
+  type={type}
+  // add ref to the Camera component
+  ref={cameraRef}
+>
+  <Button title="Take a Picture" onPress={takePicture} />;
+</Camera>;
+```
+
+<h4 id="expo-camera-how-to-switch-camera">How to switch camera</h4>
+
+To switch camera, we need to use the CameraType enum from expo-camera and set the type state.
+
+```tsx
+// add these lines into the App component
+const [type, setType] = useState(CameraType.back);
+const switchCamera = () => {
+  setType(type === CameraType.back ? CameraType.front : CameraType.back);
+};
+
+// add a button to switch camera
+<Button title="Switch Camera" onPress={switchCamera} />;
+```
+
+<h3 id="expo-image-picker"> 10. Expo Image Picker</h3>
+Expo Image Picker is a component that allows you to pick an image from the user's library or take a picture with the camera.
+
+<h4 id="expo-image-picker-installation">Installation</h4>
+
+```sh
+expo install expo-image-picker
+```
+
+<h4 id="expo-image-picker-usage">Usage</h4>
+
+```tsx
+import * as ImagePicker from 'expo-image-picker';
+
+// requestPermissionsAsync
+const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+// launchImageLibraryAsync
+const result = await ImagePicker.launchImageLibraryAsync({
+  mediaTypes: ImagePicker.MediaTypeOptions.All,
+  allowsEditing: true,
+  aspect: [4, 3],
+  quality: 1,
+});
+```
+
+<h3 id="expo-image-manipulator"> 11. Expo Image Manipulator</h3>
+Expo Image Manipulator is a component that allows you to manipulate an image. It is a wrapper around the ImageManipulator component from react-native-image-crop-picker. And I have used this library to resize the image before uploading it to the server.
+
+<h4 id="expo-image-manipulator-installation">Installation</h4>
+
+```sh
+expo install expo-image-manipulator
+```
+
+<h4 id="expo-image-manipulator-usage">Usage</h4>
+
+```tsx
+import * as ImageManipulator from 'expo-image-manipulator';
+
+// manipulateAsync
+const resizedImage = await ImageManipulator.manipulateAsync(
+  image.uri,
+  [{ resize: { width: 300 } }],
+  { compress: 1, format: ImageManipulator.SaveFormat.JPEG },
+);
+```
+
+<h3 id="react-native-maps"> 12. React Native Maps</h3>
+React Native Maps is a component that allows you to render a map view. It is a wrapper around the MapView component from react-native-maps.
+
+<h4 id="react-native-maps-installation">Installation</h4>
+
+```sh
+expo install react-native-maps
+```
+
+<h4 id="react-native-maps-usage">Usage</h4>
+
+```tsx
+import MapView from 'react-native-maps';
+
+function App() {
+  return (
+    <MapView
+      style={{ flex: 1 }}
+      initialRegion={{
+        latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      }}
+    />
+  );
+}
+```
+
+<h4 id="react-native-maps-adding-marker">Adding Marker</h4>
+
+```tsx
+import MapView, { Marker } from 'react-native-maps';
+
+function App() {
+  return (
+    <MapView
+      style={{ flex: 1 }}
+      initialRegion={{
+        latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      }}
+    >
+      <Marker
+        coordinate={{
+          latitude: 37.78825,
+          longitude: -122.4324,
+        }}
+        title="My Marker"
+        description="Some description"
+      />
+    </MapView>
+  );
+}
+```
+
+<h3 id="react-native-maps-clustering"> 13. React Native Maps Clustering</h3>
+React Native Maps Clustering is a component that allows you to cluster the markers on the map.
+
+<h4 id="react-native-maps-clustering-installation">Installation</h4>
+
+```sh
+ yarn add react-native-map-clustering
+```
+
+<h4 id="react-native-maps-clustering-usage">Usage</h4>
+
+```tsx
+import MapViewClustering from 'react-native-map-clustering';
+import MapView, { Marker } from 'react-native-maps';
+
+function App() {
+  return (
+    <MapViewClustering
+      style={{ flex: 1 }}
+      initialRegion={{
+        latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      }}
+    >
+      <Marker
+        coordinate={{
+          latitude: 37.78825,
+          longitude: -122.4324,
+        }}
+        title="My Marker"
+        description="Some description"
+      />
+    </MapViewClustering>
+  );
+}
 ```

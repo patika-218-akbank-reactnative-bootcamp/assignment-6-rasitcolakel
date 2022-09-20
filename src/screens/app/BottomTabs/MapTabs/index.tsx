@@ -19,7 +19,14 @@ const MapTabs = (props: Props) => {
       }}
     >
       <Stack.Screen name="Map" component={Map} />
-      <Stack.Screen name="UserDetail" component={UserDetail} />
+      <Stack.Screen
+        name="UserDetail"
+        component={UserDetail}
+        options={{
+          title: 'See Profile',
+          headerShown: true,
+        }}
+      />
     </Stack.Navigator>
   );
 };

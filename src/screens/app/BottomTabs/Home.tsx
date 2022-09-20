@@ -1,15 +1,27 @@
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, Entypo, Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppDispatch } from '@src/store';
 import { setToast } from '@src/store/slices/uiSlice';
-import { uploadImage } from '@src/store/slices/userSlice';
+import { setCurrentLocation, uploadImage } from '@src/store/slices/userSlice';
 import { BottomTabParamList } from '@src/types/navigation';
+import { Camera, CameraType } from 'expo-camera';
 import { manipulateAsync } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import { Button, Center, Icon, Image, Pressable } from 'native-base';
+import {
+  Button,
+  Center,
+  Checkbox,
+  HStack,
+  Heading,
+  StatusBar,
+  Text,
+  VStack,
+} from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
-import MapView, { Marker } from 'react-native-maps';
+import { AppState, ImageBackground, Linking, Pressable } from 'react-native';
+import MapView from 'react-native-maps';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const DELTAS = {
   latitudeDelta: 0.01,
@@ -26,8 +38,16 @@ export type ShareImageFormData = {
   };
 };
 const Home = ({ navigation }: Props) => {
+  const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
-
+  const [locationPermission, setLocationPermission] = useState<boolean | null>(
+    null,
+  );
+  const [cameraPermission, setCameraPermission] = useState<boolean | null>(
+    null,
+  );
+  const [cameraType, setCameraType] = useState<CameraType>(CameraType.back);
+  const cameraRef = useRef<Camera>(null);
   const mapRef = useRef<MapView>(null);
   const [share, setShare] = useState<ShareImageFormData>({
     image: '',
@@ -42,7 +62,6 @@ const Home = ({ navigation }: Props) => {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       quality: 0.4,
       allowsEditing: true,
-      aspect: [4, 3],
     });
 
     if (!result.cancelled) {
@@ -66,100 +85,224 @@ const Home = ({ navigation }: Props) => {
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        dispatch(
-          setToast({
-            title: 'Permission to access location was denied',
-            variant: 'error',
-          }),
-        );
-        return;
-      }
+  const checkPermissions = async () => {
+    const { status: locationStatus } =
+      await Location.requestForegroundPermissionsAsync();
+    if (locationStatus === 'granted') {
+      setLocationPermission(true);
+    } else {
+      setLocationPermission(false);
+      dispatch(
+        setToast({
+          title: 'Location permission not granted',
+          variant: 'error',
+        }),
+      );
+    }
+    const { status: cameraStatus } =
+      await ImagePicker.requestCameraPermissionsAsync();
+    if (cameraStatus === 'granted') {
+      setCameraPermission(true);
+      await setLocation();
+    } else {
+      setCameraPermission(false);
+      dispatch(
+        setToast({
+          title: 'Camera permission not granted',
+          variant: 'error',
+        }),
+      );
+    }
+  };
 
-      const location = await Location.getCurrentPositionAsync({});
-      console.log(location);
-      mapRef.current?.animateToRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        ...DELTAS,
-      });
-      setShare((prev) => ({
-        ...prev,
-        location: {
+  const setLocation = async () => {
+    const location = await Location.getCurrentPositionAsync({});
+    console.log(location);
+    mapRef.current?.animateToRegion({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      ...DELTAS,
+    });
+
+    dispatch(
+      setCurrentLocation({
+        currentLocation: {
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
         },
-      }));
-    })();
+      }),
+    );
+    setShare((prev) => ({
+      ...prev,
+      location: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      },
+    }));
+  };
+
+  useEffect(() => {
+    // when app mounted check permissions
+    checkPermissions();
+  }, []);
+
+  useEffect(() => {
+    AppState.addEventListener('change', (state) => {
+      console.log('App state changed', state);
+      if (state === 'active') {
+        checkPermissions();
+      }
+    });
   }, []);
 
   const onShare = () => {
     dispatch(uploadImage(share));
   };
 
-  return (
-    <Center py={3} flex={1} px={5}>
-      {share.image && (
-        <Pressable onPress={pickImage} shadow={4}>
-          <Image
-            source={{ uri: share.image }}
-            alt="image"
-            size="xl"
-            resizeMode="cover"
-            w={300}
-            h={300}
-          />
-        </Pressable>
-      )}
-      <Button
-        my={3}
-        leftIcon={<Icon as={AntDesign} name="camerao" size="md" />}
-        onPress={pickImage}
-      >
-        {`${share.image ? 'Change' : 'Upload'} Image`}
-      </Button>
-      <MapView
-        ref={mapRef}
-        style={{
-          width: 300,
-          height: 300,
-        }}
-        initialRegion={{
-          ...share.location,
-          ...DELTAS,
-        }}
-        scrollEnabled={false}
-        zoomEnabled={false}
-      >
-        <Marker
-          coordinate={{
-            ...share.location,
-          }}
-        >
-          <Center
-            w={16}
-            h={16}
-            background="primary.500"
-            borderRadius={100}
-            shadow={3}
+  // While permissions checking
+  const renderLoading = () => {
+    return <Text>Loading...</Text>;
+  };
+
+  // If user denied a permission or not granted, show a link to settings
+  const renderSetPermissions = () => {
+    return (
+      <Center flex={1}>
+        <VStack space={4}>
+          <Heading alignSelf="center">Permissions Needed</Heading>
+          <Text alignSelf="center">
+            To share a photo you need to grant location and camera permissions.
+          </Text>
+          <Checkbox
+            isChecked={!!cameraPermission}
+            colorScheme="green"
+            value="camera"
+            isDisabled={!!cameraPermission}
+            onChange={() => {
+              if (!cameraPermission) {
+                Linking.openSettings();
+              }
+            }}
+            size="md"
           >
-            <MaterialIcons name="location-history" size={60} color="white" />
-          </Center>
-        </Marker>
-      </MapView>
-      <Button
-        my={3}
-        w={300}
-        disabled={
-          !share.image || !share.location.latitude || !share.location.longitude
-        }
-        onPress={onShare}
+            Camera Permission
+          </Checkbox>
+          <Checkbox
+            isChecked={!!locationPermission}
+            colorScheme="green"
+            value="location"
+            onChange={() => {
+              if (!locationPermission) {
+                Linking.openSettings();
+              }
+            }}
+            size="md"
+          >
+            Location Permission
+          </Checkbox>
+        </VStack>
+      </Center>
+    );
+  };
+
+  // change camera type
+  const changeCameraType = () => {
+    console.log('change camera type', cameraType);
+    setCameraType(
+      cameraType === CameraType.front ? CameraType.back : CameraType.front,
+    );
+  };
+
+  // take a photo
+  const takePhoto = async () => {
+    if (cameraPermission) {
+      const photo = await cameraRef.current?.takePictureAsync();
+      console.log('photo', photo);
+      if (photo) {
+        setShare((prev) => ({ ...prev, image: photo.uri }));
+      }
+    }
+  };
+
+  // take picture or pick from gallery
+  const renderTakePicture = () => {
+    return (
+      <Camera
+        ref={cameraRef}
+        style={{
+          width: '100%',
+          height: '100%',
+          justifyContent: 'space-between',
+        }}
+        type={cameraType}
       >
-        Share
-      </Button>
+        <HStack />
+        <HStack space={4} alignItems="center" justifyContent="center" p={4}>
+          <Pressable onPress={pickImage}>
+            <AntDesign name="picture" size={30} color="white" />
+          </Pressable>
+          <Pressable onPress={takePhoto}>
+            <Entypo name="circle" size={65} color="white" />
+          </Pressable>
+          <Pressable onPress={changeCameraType}>
+            <Ionicons name="camera-reverse-outline" size={30} color="white" />
+          </Pressable>
+        </HStack>
+      </Camera>
+    );
+  };
+
+  // on go back reset image
+
+  const onGoBack = () => {
+    setShare((prev) => ({ ...prev, image: '' }));
+  };
+  // If image is selected, show it and a button to share
+  const renderShare = () => {
+    return (
+      <ImageBackground
+        style={{
+          marginTop: insets.top,
+          width: '100%',
+          height: '100%',
+        }}
+        source={{ uri: share.image }}
+      >
+        <VStack flex={1} justifyContent="space-between" my={5}>
+          <HStack space={4} p={4}>
+            <Pressable onPress={onGoBack}>
+              <Ionicons name="chevron-back" size={55} color="white" />
+            </Pressable>
+          </HStack>
+          <HStack space={4} alignItems="center" justifyContent="center" p={4}>
+            <Button
+              leftIcon={<Ionicons name="send" size={35} color="white" />}
+              onPress={onShare}
+            >
+              <Text color="white" fontSize="xl">
+                Share
+              </Text>
+            </Button>
+          </HStack>
+        </VStack>
+      </ImageBackground>
+    );
+  };
+  console.log('share', share);
+  return (
+    <Center flex={1} bg="black">
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
+      {locationPermission === null || cameraPermission === null
+        ? renderLoading()
+        : locationPermission === false || cameraPermission === false
+        ? renderSetPermissions()
+        : share.image
+        ? renderShare()
+        : renderTakePicture()}
     </Center>
   );
 };

@@ -32,7 +32,7 @@ export const uiSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(updateUser.fulfilled, (state) => {
       state.toast = {
-        title: `Now you can access other users' locations`,
+        title: `Your story has been published!`,
         variant: 'success',
       };
     });

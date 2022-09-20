@@ -20,8 +20,15 @@ export type UserType = {
   id: string;
   email?: string;
   displayName?: string;
-  photoURL?: string;
+  firstName?: string;
+  lastName?: string;
+  photoURL: string;
+  userImage?: string;
   location?: {
+    latitude: number;
+    longitude: number;
+  };
+  currentLocation?: {
     latitude: number;
     longitude: number;
   };
@@ -43,6 +50,7 @@ export const login = createAsyncThunk(
         id: login.user.uid,
         email: login.user.email || '',
         displayName: login.user.displayName || '',
+        photoURL: '',
       },
     };
     await SecureStore.setItemAsync('user', JSON.stringify(userState));
@@ -61,6 +69,7 @@ export const register = createAsyncThunk(
         id: login.user.uid,
         email: login.user.email || '',
         displayName: login.user.displayName || '',
+        photoURL: '',
       },
     };
     await SecureStore.setItemAsync('user', JSON.stringify(userState));
@@ -112,6 +121,11 @@ export const userSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
+    setCurrentLocation: (state, action: PayloadAction<Partial<UserType>>) => {
+      if (state.user) {
+        state.user.currentLocation = action.payload.currentLocation;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -134,6 +148,6 @@ export const userSlice = createSlice({
   },
 });
 
-export const { setUser, logOut } = userSlice.actions;
+export const { setUser, logOut, setCurrentLocation } = userSlice.actions;
 
 export default userSlice.reducer;
