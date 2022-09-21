@@ -4,10 +4,10 @@ import { UserType, getUsers } from '@src/store/slices/userSlice';
 import { MapTabParamList } from '@src/types/navigation';
 import CachedImage from 'expo-cached-image';
 import { Box, Center, Text, View, useTheme } from 'native-base';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import MapView from 'react-native-map-clustering';
-import { Marker } from 'react-native-maps';
+import OriginalMapView, { Marker } from 'react-native-maps';
 
 type Props = NativeStackScreenProps<MapTabParamList, 'Map'>;
 
@@ -27,6 +27,7 @@ const Map = ({ navigation }: Props) => {
   const currentLocation = useAppSelector(
     (state) => state.user.user?.currentLocation,
   );
+  const mapRef = useRef<OriginalMapView>(null);
   const { colors } = useTheme();
   useEffect(() => {
     dispatch(getUsers());
@@ -38,6 +39,18 @@ const Map = ({ navigation }: Props) => {
       dispatch(getUsers());
     });
   }, [navigation]);
+
+  useEffect(() => {
+    if (currentLocation) {
+      mapRef?.current?.animateToRegion(
+        {
+          ...currentLocation,
+          ...DELTAS,
+        },
+        1000,
+      );
+    }
+  }, [currentLocation]);
 
   const renderMarker = (_user: UserType) => (
     <Marker
@@ -90,11 +103,13 @@ const Map = ({ navigation }: Props) => {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         style={styles.map}
         initialRegion={{
           latitude: currentLocation?.latitude || 0,
           longitude: currentLocation?.longitude || 0,
-          ...DELTAS,
+          latitudeDelta: 10,
+          longitudeDelta: 15,
         }}
         clusterColor={colors.amber[500]}
       >
