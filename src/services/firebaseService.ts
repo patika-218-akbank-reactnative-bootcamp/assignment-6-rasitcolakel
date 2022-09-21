@@ -10,6 +10,7 @@ import {
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   query,
   setDoc,
@@ -100,6 +101,17 @@ export async function getUsersWithLocation() {
   const querySnapshot = await getDocs(q);
   const users = querySnapshot.docs.map((doc) => doc.data()) as UserType[];
   return users.filter((u) => u.location);
+}
+
+export async function getCurrentUser(): Promise<UserType> {
+  const currentUser = auth.currentUser;
+  if (currentUser) {
+    const userDoc = doc(db, 'users', currentUser?.uid);
+    const docSnap = await getDoc(userDoc);
+    return docSnap.data() as UserType;
+  } else {
+    throw new Error('No user logged in');
+  }
 }
 
 export async function seedUsers() {

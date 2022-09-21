@@ -3,7 +3,11 @@ import { auth } from '@src/config/firebase';
 import AppStack from '@src/screens/app';
 import AuthStack from '@src/screens/auth';
 import { useAppDispatch, useAppSelector } from '@src/store';
-import { setCurrentLocation, setUser } from '@src/store/slices/userSlice';
+import {
+  getCurrentUser,
+  setCurrentLocation,
+  setUser,
+} from '@src/store/slices/userSlice';
 import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect } from 'react';
@@ -37,6 +41,7 @@ export default function Navigation() {
           dispatch(setUser(json));
           // set location
           await setLocation();
+          dispatch(getCurrentUser());
         }
       } else {
         // No user is signed in.

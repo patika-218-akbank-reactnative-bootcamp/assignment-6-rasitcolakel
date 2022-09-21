@@ -1,7 +1,9 @@
 import { PayloadAction, createSlice, isAnyOf } from '@reduxjs/toolkit';
 import {
+  changeImage,
   login,
   register,
+  updateProfile,
   updateUser,
   uploadImage,
 } from '@src/store/slices/userSlice';
@@ -30,12 +32,19 @@ export const uiSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(updateUser.fulfilled, (state) => {
-      state.toast = {
-        title: `Your story has been published!`,
-        variant: 'success',
-      };
-    });
+    builder
+      .addCase(updateUser.fulfilled, (state) => {
+        state.toast = {
+          title: `Your story has been published!`,
+          variant: 'success',
+        };
+      })
+      .addCase(updateProfile.fulfilled, (state) => {
+        state.toast = {
+          title: `Successfully updated your profile!`,
+          variant: 'success',
+        };
+      });
     builder
       .addMatcher(
         isAnyOf(
@@ -43,6 +52,7 @@ export const uiSlice = createSlice({
           register.rejected,
           uploadImage.rejected,
           updateUser.rejected,
+          changeImage.rejected,
         ),
         (state, action) => {
           state.toast = {

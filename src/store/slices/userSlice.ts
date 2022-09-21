@@ -99,6 +99,31 @@ export const updateUser = createAsyncThunk(
   },
 );
 
+export const changeImage = createAsyncThunk(
+  'user/changeImage',
+  async (uri: string, { dispatch }) => {
+    const image = await FirebaseService.uploadImage(uri);
+    await dispatch(updateProfile({ userImage: image }));
+  },
+);
+
+export const updateProfile = createAsyncThunk(
+  'user/updateProfile',
+  async (values: Partial<UserType>) => {
+    await FirebaseService.updateUser(values);
+    const user = await FirebaseService.getCurrentUser();
+    return user;
+  },
+);
+
+export const getCurrentUser = createAsyncThunk(
+  'user/getCurrentUser',
+  async () => {
+    const user = await FirebaseService.getCurrentUser();
+    return user;
+  },
+);
+
 export const getUsers = createAsyncThunk('user/getUsers', async () => {
   const users = await FirebaseService.getUsersWithLocation();
   return users;
@@ -137,7 +162,25 @@ export const userSlice = createSlice({
       })
       .addCase(getUsers.fulfilled, (state, action) => {
         state.users = action.payload;
-      });
+      })
+      .addCase(
+        updateProfile.fulfilled,
+        (state, action: PayloadAction<UserType>) => {
+          state.user = {
+            currentLocation: state.user?.currentLocation,
+            ...action.payload,
+          };
+        },
+      )
+      .addCase(
+        getCurrentUser.fulfilled,
+        (state, action: PayloadAction<UserType>) => {
+          state.user = {
+            currentLocation: state.user?.currentLocation,
+            ...action.payload,
+          };
+        },
+      );
     builder.addMatcher(
       isAnyOf(login.fulfilled, register.fulfilled),
       (state, action: PayloadAction<UserState>) => {
