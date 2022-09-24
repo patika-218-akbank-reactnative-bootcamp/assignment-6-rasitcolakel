@@ -13,28 +13,86 @@ expo init my-app --template @native-base/expo-template-typescript
 ```
 
 <h2>Preview</h2>
-
-<table style="width:100%">
-<tr style="width:100%">
-  <td syle="text-align:center"> Light Theme </td>
-  <td syle="text-align:center"> Dark Theme </td>
-  <td syle="text-align:center"> Animated View </td>
+<style>
+    table {
+        width: 100%;
+    }
+    table td {
+        width: 33%;
+        text-align: center;
+    }
+</style>
+<table>
+<tr>
+  <td> Light Theme </td>
+  <td> Dark Theme </td>
+  <td> Animated View </td>
 </tr>
 
 </table>
+<br/>
+<p>Login Screen</p>
+<div>
+  <img src="./screenshots/loginLight.png" width="32%" height="auto" />
+  <img src="./screenshots/loginDark.png" width="32%" height="auto" />
+</div>
+<br/>
+<p>Register Screen</p>
+<div>
+  <img src="./screenshots/registerLight.png" width="32%" height="auto" />
+  <img src="./screenshots/registerDark.png" width="32%" height="auto" />
+</div>
+<br/>
+<p>New Story Screen (Always Dark Mode)</p>
+<div>
+  <img src="./screenshots/newStory1.png" width="32%" height="auto" />
+  <img src="./screenshots/newStory2.png" width="32%" height="auto" />
+  <img src="./screenshots/newStory.gif" width="32%" height="auto" />
+</div>
+<br/>
+<p>Map Screen iOS</p>
+<div>
+  <img src="./screenshots/mapiOSLight.png" width="32%" height="auto" />
+  <img src="./screenshots/mapiOSDark.png" width="32%" height="auto" />
+  <img src="./screenshots/mapThemeiOS.gif" width="32%" height="auto" />
+</div>
+<br/>
+<p>Map Screen Android</p>
+<div>
+  <img src="./screenshots/mapAndroidLight.png" width="32%" height="auto" />
+  <img src="./screenshots/mapAndroidDark.png" width="32%" height="auto" />
+  <img src="./screenshots/mapThemeAndroid.gif" width="32%" height="auto" />
+</div>
+<br/>
+<p>Profile Screen</p>
 <div>
   <img src="./screenshots/profileLight.png" width="32%" height="auto" />
   <img src="./screenshots/profileDark.png" width="32%" height="auto" />
+    <img src="./screenshots/profile.gif" width="32%" height="auto" />
 </div>
+<br/>
+<p>Edit Profile Screen</p>
 <div>
   <img src="./screenshots/editProfileLight.png" width="32%" height="auto" />
   <img src="./screenshots/editProfileDark.png" width="32%" height="auto" />
   <img src="./screenshots/editProfile.gif" width="32%" height="auto" />
 </div>
+<br/>
+<p>Settings Screen</p>
 <div>
   <img src="./screenshots/changeThemeLight.png" width="32%" height="auto" />
   <img src="./screenshots/changeThemeDark.png" width="32%" height="auto" />
 </div>
+
+<br/>
+<p>Logout Functionality</p>
+<div>
+  <img src="./screenshots/logout.gif" width="32%" height="auto" />
+
+</div>
+
+<br/>
+
 <h3>Used Libraries and Dependencies</h3>
 
 1. [NativeBase](#nativebase)

@@ -55,7 +55,7 @@ const Register = ({ navigation }: Props) => {
       >
         <Center flex={1}>
           <Box
-            background={isDark ? 'gray.900' : 'gray.400'}
+            background={isDark ? 'gray.900' : 'coolGray.100'}
             _text={{
               color: 'white',
               fontWeight: 'bold',
