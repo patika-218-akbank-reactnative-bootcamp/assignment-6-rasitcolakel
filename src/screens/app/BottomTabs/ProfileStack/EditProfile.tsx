@@ -15,7 +15,6 @@ import {
   Input,
   KeyboardAvoidingView,
   ScrollView,
-  VStack,
   useColorMode,
   useDisclose,
   useTheme,

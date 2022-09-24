@@ -12,6 +12,29 @@ This project is created with official NativeBase TypeScript template for [Expo](
 expo init my-app --template @native-base/expo-template-typescript
 ```
 
+<h2>Preview</h2>
+
+<table style="width:100%">
+<tr style="width:100%">
+  <td syle="text-align:center"> Light Theme </td>
+  <td syle="text-align:center"> Dark Theme </td>
+  <td syle="text-align:center"> Animated View </td>
+</tr>
+
+</table>
+<div>
+  <img src="./screenshots/profileLight.png" width="32%" height="auto" />
+  <img src="./screenshots/profileDark.png" width="32%" height="auto" />
+</div>
+<div>
+  <img src="./screenshots/editProfileLight.png" width="32%" height="auto" />
+  <img src="./screenshots/editProfileDark.png" width="32%" height="auto" />
+  <img src="./screenshots/editProfile.gif" width="32%" height="auto" />
+</div>
+<div>
+  <img src="./screenshots/changeThemeLight.png" width="32%" height="auto" />
+  <img src="./screenshots/changeThemeDark.png" width="32%" height="auto" />
+</div>
 <h3>Used Libraries and Dependencies</h3>
 
 1. [NativeBase](#nativebase)
