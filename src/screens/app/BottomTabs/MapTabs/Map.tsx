@@ -3,11 +3,183 @@ import { useAppDispatch, useAppSelector } from '@src/store';
 import { UserType, getUsers } from '@src/store/slices/userSlice';
 import { MapTabParamList } from '@src/types/navigation';
 import CachedImage from 'expo-cached-image';
-import { Box, Center, Text, View, useTheme } from 'native-base';
+import {
+  Box,
+  Center,
+  HStack,
+  Heading,
+  Spinner,
+  Text,
+  View,
+  useColorMode,
+  useTheme,
+} from 'native-base';
 import React, { useEffect, useRef } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import MapView from 'react-native-map-clustering';
 import OriginalMapView, { Marker } from 'react-native-maps';
+
+const customMapStyle = [
+  {
+    elementType: 'geometry',
+    stylers: [
+      {
+        color: '#242f3e',
+      },
+    ],
+  },
+  {
+    elementType: 'labels.text.fill',
+    stylers: [
+      {
+        color: '#746855',
+      },
+    ],
+  },
+  {
+    elementType: 'labels.text.stroke',
+    stylers: [
+      {
+        color: '#242f3e',
+      },
+    ],
+  },
+  {
+    featureType: 'administrative.locality',
+    elementType: 'labels.text.fill',
+    stylers: [
+      {
+        color: '#d59563',
+      },
+    ],
+  },
+  {
+    featureType: 'poi',
+    elementType: 'labels.text.fill',
+    stylers: [
+      {
+        color: '#d59563',
+      },
+    ],
+  },
+  {
+    featureType: 'poi.park',
+    elementType: 'geometry',
+    stylers: [
+      {
+        color: '#263c3f',
+      },
+    ],
+  },
+  {
+    featureType: 'poi.park',
+    elementType: 'labels.text.fill',
+    stylers: [
+      {
+        color: '#6b9a76',
+      },
+    ],
+  },
+  {
+    featureType: 'road',
+    elementType: 'geometry',
+    stylers: [
+      {
+        color: '#38414e',
+      },
+    ],
+  },
+  {
+    featureType: 'road',
+    elementType: 'geometry.stroke',
+    stylers: [
+      {
+        color: '#212a37',
+      },
+    ],
+  },
+  {
+    featureType: 'road',
+    elementType: 'labels.text.fill',
+    stylers: [
+      {
+        color: '#9ca5b3',
+      },
+    ],
+  },
+  {
+    featureType: 'road.highway',
+    elementType: 'geometry',
+    stylers: [
+      {
+        color: '#746855',
+      },
+    ],
+  },
+  {
+    featureType: 'road.highway',
+    elementType: 'geometry.stroke',
+    stylers: [
+      {
+        color: '#1f2835',
+      },
+    ],
+  },
+  {
+    featureType: 'road.highway',
+    elementType: 'labels.text.fill',
+    stylers: [
+      {
+        color: '#f3d19c',
+      },
+    ],
+  },
+  {
+    featureType: 'transit',
+    elementType: 'geometry',
+    stylers: [
+      {
+        color: '#2f3948',
+      },
+    ],
+  },
+  {
+    featureType: 'transit.station',
+    elementType: 'labels.text.fill',
+    stylers: [
+      {
+        color: '#d59563',
+      },
+    ],
+  },
+  {
+    featureType: 'water',
+    elementType: 'geometry',
+    stylers: [
+      {
+        color: '#17263c',
+      },
+    ],
+  },
+  {
+    featureType: 'water',
+    elementType: 'labels.text.fill',
+    stylers: [
+      {
+        color: '#515c6d',
+      },
+    ],
+  },
+  {
+    featureType: 'water',
+    elementType: 'labels.text.stroke',
+    stylers: [
+      {
+        color: '#17263c',
+      },
+    ],
+  },
+];
 
 type Props = NativeStackScreenProps<MapTabParamList, 'Map'>;
 
@@ -29,26 +201,19 @@ const Map = ({ navigation }: Props) => {
   );
   const mapRef = useRef<OriginalMapView>(null);
   const { colors } = useTheme();
-  useEffect(() => {
-    dispatch(getUsers());
-  }, []);
-
+  const { colorMode } = useColorMode();
   useEffect(() => {
     navigation.addListener('focus', () => {
-      console.log('Map screen focused');
       dispatch(getUsers());
     });
   }, [navigation]);
 
   useEffect(() => {
     if (currentLocation) {
-      mapRef?.current?.animateToRegion(
-        {
-          ...currentLocation,
-          ...DELTAS,
-        },
-        1000,
-      );
+      mapRef?.current?.animateToRegion({
+        ...currentLocation,
+        ...DELTAS,
+      });
     }
   }, [currentLocation]);
 
@@ -102,19 +267,40 @@ const Map = ({ navigation }: Props) => {
   );
   return (
     <View style={styles.container}>
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        initialRegion={{
-          latitude: currentLocation?.latitude || 0,
-          longitude: currentLocation?.longitude || 0,
-          latitudeDelta: 10,
-          longitudeDelta: 15,
-        }}
-        clusterColor={colors.amber[500]}
-      >
-        {users && users.map((user) => renderMarker(user))}
-      </MapView>
+      <>
+        {!currentLocation && (
+          <HStack
+            justifyContent="center"
+            alignItems="center"
+            position="absolute"
+            h="full"
+            w="full"
+            background="white"
+            zIndex={100}
+            opacity={0.2}
+          >
+            <Spinner accessibilityLabel="Loading posts" size="lg" mx={4} />
+            <Heading color="primary.500" fontSize="xl">
+              Map is rotating...
+            </Heading>
+          </HStack>
+        )}
+        <MapView
+          userInterfaceStyle={colorMode === 'dark' ? 'dark' : 'light'}
+          customMapStyle={colorMode === 'dark' ? customMapStyle : []}
+          ref={mapRef}
+          style={styles.map}
+          initialRegion={{
+            latitude: currentLocation?.latitude || 0,
+            longitude: currentLocation?.longitude || 0,
+            latitudeDelta: 10,
+            longitudeDelta: 15,
+          }}
+          clusterColor={colors.amber[500]}
+        >
+          {users && users.map((user) => renderMarker(user))}
+        </MapView>
+      </>
     </View>
   );
 };

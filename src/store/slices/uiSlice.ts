@@ -21,7 +21,7 @@ const initialState: ToastState = {
 };
 
 export const uiSlice = createSlice({
-  name: 'counter',
+  name: 'ui',
   initialState,
   reducers: {
     setToast: (state, action: PayloadAction<ToastType>) => {

@@ -107,6 +107,27 @@ export const changeImage = createAsyncThunk(
   },
 );
 
+type UpdateProfilePayload = {
+  userImage?: string;
+  displayName?: string;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
+};
+
+export const changeImageAndUpdate = createAsyncThunk(
+  'user/changeImageAndUpdate',
+  async (values: UpdateProfilePayload, { dispatch }) => {
+    console.log('changeImageAndUpdate', values);
+    if (values.userImage) {
+      const image = await FirebaseService.uploadImage(values.userImage);
+      values.userImage = image;
+    }
+    await dispatch(updateProfile(values));
+  },
+);
+
 export const updateProfile = createAsyncThunk(
   'user/updateProfile',
   async (values: Partial<UserType>) => {

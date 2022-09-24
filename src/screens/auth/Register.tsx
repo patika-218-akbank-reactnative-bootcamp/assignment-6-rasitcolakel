@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Link,
   ScrollView,
+  useColorMode,
 } from 'native-base';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -38,6 +39,10 @@ const Register = ({ navigation }: Props) => {
   const onSubmit = async (data: RegisterForm) => {
     await dispatch(register(data));
   };
+
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === 'dark';
+
   return (
     <ScrollView
       contentContainerStyle={{ flex: 1 }}
@@ -45,12 +50,12 @@ const Register = ({ navigation }: Props) => {
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        bg="yellow.50"
+        bg={isDark ? 'black' : 'white'}
         flex={1}
       >
         <Center flex={1}>
           <Box
-            bg="white"
+            background={isDark ? 'gray.900' : 'gray.400'}
             _text={{
               color: 'white',
               fontWeight: 'bold',

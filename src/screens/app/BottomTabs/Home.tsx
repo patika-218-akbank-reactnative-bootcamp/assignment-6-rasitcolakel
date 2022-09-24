@@ -1,4 +1,5 @@
 import { AntDesign, Entypo, Ionicons } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppDispatch } from '@src/store';
 import { setToast } from '@src/store/slices/uiSlice';
@@ -8,13 +9,13 @@ import { Camera, CameraType } from 'expo-camera';
 import { manipulateAsync } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import { StatusBar } from 'expo-status-bar';
 import {
   Button,
   Center,
   Checkbox,
   HStack,
   Heading,
-  StatusBar,
   Text,
   VStack,
 } from 'native-base';
@@ -46,6 +47,7 @@ const Home = ({ navigation }: Props) => {
   const [cameraPermission, setCameraPermission] = useState<boolean | null>(
     null,
   );
+  const isFocused = useIsFocused();
   const [cameraType, setCameraType] = useState<CameraType>(CameraType.back);
   const cameraRef = useRef<Camera>(null);
   const mapRef = useRef<MapView>(null);
@@ -291,11 +293,7 @@ const Home = ({ navigation }: Props) => {
   console.log('share', share);
   return (
     <Center flex={1} bg="black">
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor="transparent"
-        translucent
-      />
+      {isFocused && <StatusBar style="light" />}
       {locationPermission === null || cameraPermission === null
         ? renderLoading()
         : locationPermission === false || cameraPermission === false

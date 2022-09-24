@@ -2,12 +2,11 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppDispatch, useAppSelector } from '@src/store';
-import { changeImage } from '@src/store/slices/userSlice';
+import { changeImage, logout } from '@src/store/slices/userSlice';
 import {
   BottomTabParamList,
   ProfileStackParamList,
 } from '@src/types/navigation';
-import CachedImage from 'expo-cached-image';
 import { manipulateAsync } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import {
@@ -17,6 +16,8 @@ import {
   Heading,
   Image,
   Text,
+  VStack,
+  useColorMode,
   useDisclose,
 } from 'native-base';
 import React from 'react';
@@ -32,10 +33,10 @@ type Props = CompositeScreenProps<
 const Profile = ({ navigation }: Props) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.user);
-  const { userImage } = useAppSelector((state) => state.user.user);
+  const userImage = useAppSelector((state) => state.user.user?.userImage);
   const fullName = (user?.firstName || '') + ' ' + (user?.lastName || '');
   const { isOpen, onOpen, onClose } = useDisclose();
-
+  const { colorMode } = useColorMode();
   // pickImage
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -76,16 +77,18 @@ const Profile = ({ navigation }: Props) => {
       return;
     }
 
-    const result = await ImagePicker.launchCameraAsync();
+    const result = await ImagePicker.launchCameraAsync({
+      aspect: [1, 1],
+    });
 
     if (!result.cancelled) {
       dispatch(changeImage(result.uri));
       onClose();
     }
   };
-  console.log('user?.userImage', user?.userImage);
+
   return (
-    <Center py={2}>
+    <Center py={4} flex={1}>
       <Center
         justifyContent="center"
         alignItems="center"
@@ -107,21 +110,31 @@ const Profile = ({ navigation }: Props) => {
           />
         )}
       </Center>
-      <Button variant="ghost" onPress={onOpen}>
+      <Button variant="ghost" onPress={onOpen} mt={2}>
         <Text color="primary.500">Change Profile Photo</Text>
       </Button>
       <Actionsheet isOpen={isOpen} onClose={onClose} collapsable>
         <Actionsheet.Content alignItems="center">
           <Actionsheet.Item
             leftIcon={
-              <Ionicons name="camera-reverse-outline" size={30} color="black" />
+              <Ionicons
+                name="camera-reverse-outline"
+                size={30}
+                color={colorMode === 'dark' ? 'white' : 'black'}
+              />
             }
             onPress={takePicture}
           >
             Take a Picture
           </Actionsheet.Item>
           <Actionsheet.Item
-            leftIcon={<AntDesign name="picture" size={30} color="black" />}
+            leftIcon={
+              <AntDesign
+                name="picture"
+                size={30}
+                color={colorMode === 'dark' ? 'white' : 'black'}
+              />
+            }
             onPress={pickImage}
           >
             Pick from Library
@@ -129,6 +142,20 @@ const Profile = ({ navigation }: Props) => {
         </Actionsheet.Content>
       </Actionsheet>
       <Heading>{fullName}</Heading>
+      <VStack>
+        <Button mb="2" onPress={() => navigation.push('EditProfile')}>
+          Edit Profile
+        </Button>
+        <Button onPress={() => navigation.push('Settings')}>
+          Change Theme
+        </Button>
+      </VStack>
+
+      <Button variant="ghost" mt="auto" onPress={() => dispatch(logout())}>
+        <Text color="red.500" fontSize="xl">
+          Logout
+        </Text>
+      </Button>
     </Center>
   );
 };

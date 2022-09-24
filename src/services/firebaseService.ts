@@ -56,6 +56,7 @@ export async function saveUserToFirestore(user: UserCredential): Promise<void> {
 
 export async function updateUser(user: Partial<UserType>): Promise<void> {
   const currentUser = auth.currentUser;
+  console.log('currentUser', currentUser);
   if (currentUser) {
     const userDoc = doc(db, 'users', currentUser?.uid);
     const docData = {
