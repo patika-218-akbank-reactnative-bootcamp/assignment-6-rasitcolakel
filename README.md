@@ -13,22 +13,16 @@ expo init my-app --template @native-base/expo-template-typescript
 ```
 
 <h2>Preview</h2>
-<style>
-    table {
-        width: 100%;
-    }
-    table td {
-        width: 33%;
-        text-align: center;
-    }
-</style>
-<table>
+<table style="width: 100%;">
 <tr>
-  <td> Light Theme </td>
-  <td> Dark Theme </td>
-  <td> Animated View </td>
+  <td align="center"> Light Theme </td>
+  <td align="center"> Dark Theme </td>
+  <td align="center"> Animated View </td>
 </tr>
-
+| Element | Attribute             |
+| ------- | ---------             |
+| Frost   | Sparkling and frozen! |
+| Snow    | Falling down!         |
 </table>
 <br/>
 <p>Login Screen</p>
