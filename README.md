@@ -2,6 +2,8 @@
 
 <h1>React Native Bootcamp Assignment 6</h1>
 
+This is an app like SnapChat, it has some functionalities such as sharing story, getting locations and more...
+
 <h1>NativeBase TypeScript Expo Template</h1>
 
 This project is created with official NativeBase TypeScript template for [Expo](https://docs.expo.io/)
